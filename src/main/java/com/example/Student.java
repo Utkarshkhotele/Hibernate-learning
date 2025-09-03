@@ -7,19 +7,31 @@ import jakarta.persistence.*;
 public class Student {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // let DB generate id
     private Integer id;
 
     @Column(nullable = false, length = 100)
     private String name;
 
+    @Column(unique = true)
+    private String email;
+
     public Student() {}
 
-    public Student(String name) {
+    public Student(String name, String email) {
         this.name = name;
+        this.email = email;
     }
 
+    // getters/setters
     public Integer getId() { return id; }
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
+    @Override
+    public String toString() {
+        return "Student{id=" + id + ", name='" + name + "', email='" + email + "'}";
+    }
 }
