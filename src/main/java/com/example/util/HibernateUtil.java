@@ -1,14 +1,18 @@
-package com.example;
+package com.example.util;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import com.example.model.Note;
 
-class HibernateUtil {
-    private static final SessionFactory sessionFactory = buildSessionFactory();
+public class HibernateUtil {
+    private static final SessionFactory sessionFactory;
 
-    private static SessionFactory buildSessionFactory() {
+    static {
         try {
-            return new Configuration().configure().buildSessionFactory();
+            sessionFactory = new Configuration()
+                    .configure("hibernate.cfg.xml")
+                    .addAnnotatedClass(Note.class)   // register Note entity
+                    .buildSessionFactory();
         } catch (Throwable ex) {
             System.err.println("SessionFactory creation failed." + ex);
             throw new ExceptionInInitializerError(ex);
