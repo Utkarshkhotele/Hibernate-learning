@@ -3,7 +3,6 @@
 This repository documents my step-by-step learning of **Hibernate ORM** with **MySQL** using Java.  
 The goal is to understand how Hibernate works, from basic configuration to entity relationships and CRUD operations.
 
-
 ---
 
 ## 📚 What I Learned So Far
