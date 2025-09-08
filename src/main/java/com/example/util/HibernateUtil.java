@@ -2,20 +2,15 @@ package com.example.util;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
-import com.example.model.Note;
 
 public class HibernateUtil {
-    private static final SessionFactory sessionFactory;
+    private static final SessionFactory sessionFactory = buildSessionFactory();
 
-    static {
+    private static SessionFactory buildSessionFactory() {
         try {
-            sessionFactory = new Configuration()
-                    .configure("hibernate.cfg.xml")
-                    .addAnnotatedClass(Note.class)   // register Note entity
-                    .buildSessionFactory();
+            return new Configuration().configure("hibernate.cfg.xml").buildSessionFactory();
         } catch (Throwable ex) {
-            System.err.println("SessionFactory creation failed." + ex);
-            throw new ExceptionInInitializerError(ex);
+            throw new ExceptionInInitializerError("SessionFactory creation failed: " + ex);
         }
     }
 

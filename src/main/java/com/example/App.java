@@ -2,107 +2,54 @@ package com.example;
 
 import com.example.model.Note;
 import com.example.util.HibernateUtil;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
+import org.hibernate.*;
+import org.hibernate.query.Query;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+
+import java.util.List;
 
 public class App {
     public static void main(String[] args) {
-        // CREATE
-        int noteId = createNote("Shopping List", "Milk, Bread, Eggs");
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = session.beginTransaction();
 
-        // READ
-        readNote(noteId);
+        // ---------------- CREATE ----------------
+        Note note1 = new Note("Shopping", "Buy milk and eggs");
+        session.save(note1);
 
-        // UPDATE
-        updateNote(noteId, "Updated Shopping List", "Milk, Bread, Eggs, Butter");
+        Note note2 = new Note("Work", "Finish Hibernate project");
+        session.save(note2);
 
-        // DELETE
-        deleteNote(noteId);
+        // ---------------- READ ----------------
+        Note n = session.get(Note.class, 1);
+        System.out.println("Read Note: " + n);
 
+        // ---------------- UPDATE ----------------
+        n.setContent("Buy milk, eggs, and bread");
+        session.update(n);
+
+        // ---------------- DELETE ----------------
+        // session.delete(n);
+
+        // ---------------- 1. HQL Example ----------------
+        Query<Note> hqlQuery = session.createQuery("from Note where title = :title", Note.class);
+        hqlQuery.setParameter("title", "Work");
+        List<Note> workNotes = hqlQuery.list();
+        System.out.println("HQL Result: " + workNotes);
+
+        // ---------------- 2. Criteria API Example ----------------
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Note> cq = cb.createQuery(Note.class);
+        Root<Note> root = cq.from(Note.class);
+        cq.select(root).where(cb.like(root.get("content"), "%milk%"));
+        List<Note> milkNotes = session.createQuery(cq).getResultList();
+        System.out.println("Criteria Result: " + milkNotes);
+
+        tx.commit();
+        session.close();
         HibernateUtil.shutdown();
-    }
-
-    // CREATE
-    public static int createNote(String title, String content) {
-        Session session = HibernateUtil.getSessionFactory().openSession();
-        Transaction tx = null;
-        Integer noteId = null;
-
-        try {
-            tx = session.beginTransaction();
-            Note note = new Note(title, content);
-            noteId = (Integer) session.save(note);
-            tx.commit();
-            System.out.println("✅ Note created with ID: " + noteId);
-        } catch (Exception e) {
-            if (tx != null) tx.rollback();
-            e.printStackTrace();
-        } finally {
-            session.close();
-        }
-        return noteId;
-    }
-
-    // READ
-    public static void readNote(int id) {
-        Session session = HibernateUtil.getSessionFactory().openSession();
-        try {
-            Note note = session.get(Note.class, id);
-            if (note != null) {
-                System.out.println("📖 Found: " + note);
-            } else {
-                System.out.println("⚠ No note found with ID " + id);
-            }
-        } finally {
-            session.close();
-        }
-    }
-
-    // UPDATE
-    public static void updateNote(int id, String newTitle, String newContent) {
-        Session session = HibernateUtil.getSessionFactory().openSession();
-        Transaction tx = null;
-
-        try {
-            tx = session.beginTransaction();
-            Note note = session.get(Note.class, id);
-            if (note != null) {
-                note.setTitle(newTitle);
-                note.setContent(newContent);
-                session.update(note);
-                tx.commit();
-                System.out.println("✏ Updated: " + note);
-            } else {
-                System.out.println("⚠ Cannot update. Note not found.");
-            }
-        } catch (Exception e) {
-            if (tx != null) tx.rollback();
-            e.printStackTrace();
-        } finally {
-            session.close();
-        }
-    }
-
-    // DELETE
-    public static void deleteNote(int id) {
-        Session session = HibernateUtil.getSessionFactory().openSession();
-        Transaction tx = null;
-
-        try {
-            tx = session.beginTransaction();
-            Note note = session.get(Note.class, id);
-            if (note != null) {
-                session.delete(note);
-                tx.commit();
-                System.out.println("🗑 Deleted Note with ID " + id);
-            } else {
-                System.out.println("⚠ Cannot delete. Note not found.");
-            }
-        } catch (Exception e) {
-            if (tx != null) tx.rollback();
-            e.printStackTrace();
-        } finally {
-            session.close();
-        }
     }
 }
