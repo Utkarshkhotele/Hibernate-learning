@@ -7,6 +7,7 @@ The goal is to understand how Hibernate works, from basic configuration to entit
 
 ## 📚 What I Learned So Far
 
+
 ### ✅ Day 1: Hibernate Basics
 - Added Hibernate & MySQL dependencies in `pom.xml`
 - Configured `hibernate.cfg.xml`
